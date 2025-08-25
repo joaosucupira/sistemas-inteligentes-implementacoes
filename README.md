@@ -1,0 +1,31 @@
+# Sistemas Inteligentes 2025.2 - UTFPR
+
+![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python)
+![License](https://img.shields.io/badge/license-MIT-green)
+![UTFPR](https://img.shields.io/badge/UTFPR-Sistemas%20Inteligentes-yellow)
+
+## Sobre o Repositório
+
+Este repositório contém as implementações desenvolvidas para a disciplina de **Sistemas Inteligentes** da Universidade Tecnológica Federal do Paraná (UTFPR).
+
+Aqui você encontrará algoritmos e exemplos relacionados aos principais tópicos estudados na disciplina, como:
+- Algoritmos Genéticos
+- Tempera Simulada
+- Outros métodos de otimização e inteligência artificial
+
+## Estrutura
+- `main.py`: Arquivo principal para execução dos algoritmos
+- `src/algoritmos_geneticos.py`: Implementação de algoritmos genéticos
+- `src/tempera_simulada.py`: Implementação de tempera simulada
+- `requirements.txt`: Dependências do projeto
+
+## Como executar
+
+```bash
+pip install -r requirements.txt
+python main.py
+```
+
+## Licença
+
+Este projeto está licenciado sob a licença MIT.
