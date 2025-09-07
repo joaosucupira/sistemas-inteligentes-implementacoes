@@ -17,6 +17,7 @@ num_cidades = 5
 distancias = criar_matriz_distancias(num_cidades)
 print(distancias)
 
+# função objetiva
 def calcular_custo(rota, distancias):
     """Calcula o custo total de uma rota."""
     custo = 0
@@ -56,7 +57,7 @@ def simulated_annealing_tsp(distancias, T_inicial, alpha, T_final):
             melhor_rota = rota_atual[:]
             melhor_custo = calcular_custo(melhor_rota, distancias)
             
-        T *= alpha
+        T *= alpha # função de decaimento da temperatura
         
     return melhor_rota, melhor_custo
 
