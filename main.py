@@ -1,5 +1,5 @@
 from src.algoritmos_geneticos import AG
-from src.tempera_simulada import TS
+from tempera_simulada import TS
 
 def main():
     print('sistemas inteligentes')
