@@ -1,14 +1,15 @@
-import matplotlib
+import matplotlib as plt
 from random import randint, random, choice, shuffle, uniform
 from string import ascii_uppercase
 
-GRAPH = 4
+GRAPH = 26
 WEIGHT_RANGE = (1,10)
 MUTATION = 0.05
 START = 'A'
-POPULATION = 5
+POPULATION = 10
 INDIVIDUAL = GRAPH - 1
-GENERATIONS = 5
+GENERATIONS = 1000
+PRINT_INTERVAL = 100
 
 class Graph:
     def __init__(self, size=GRAPH, weight_range=WEIGHT_RANGE):
@@ -16,7 +17,6 @@ class Graph:
         self.size = size
         self.nodes = list(ascii_uppercase[:size])
         self.fill_weights(weight_range)
-        print(self.matrix)
         
     def __str__(self):
         return f'{self.nodes}'
@@ -56,6 +56,7 @@ class TSP:
         self.p_size = p_size
         self.start_node = start_n
         self.generations = []
+ 
     
     def get_random_individual(self):
         labels = self.graph.get_node_neighbors(self.start_node)
@@ -71,12 +72,10 @@ class TSP:
                 pop.append(individual)
         return pop
 
-    def print_generations(self):
+    def print_generations(self, interval=PRINT_INTERVAL):
         for i in range(0, len(self.generations)):
-            print(f'gen {i}')
-            for individual in self.generations[i]:
-                print(f'{individual} - {self.get_fitness(individual)}')
-            print(self.get_fitness_sum(self.generations[i]))        
+            if (i % interval == 0):
+                print(f'gen {i} best fit = {min(self.get_fitness(ind) for ind in self.generations[i])}')
     
     def get_fitness(self, individual):
         # TODO: Calculate fitness function from path string
@@ -96,61 +95,82 @@ class TSP:
     def get_fitness_sum(self, population):
         return sum(self.get_fitness(individual) for individual in population)
     
-    def get_select_parents(self, population):
-        parents = []
-        fit_sum = self.get_fitness_sum(population)
+    def get_selected_parent(self, population):
+        
+        # getting the worst fit from the population
         worst_fit = max(self.get_fitness(ind) for ind in population) + 1
-        while (len(parents) < len(population)):
-            spin = uniform(0, fit_sum)
-            s = 0
+        total_aptitude = sum(worst_fit - self.get_fitness(ind) for ind in population)
+        
+        # spinning the wheel for a random value under the total fitness sum up
+        spin = uniform(0, total_aptitude)
+        s = 0
+        
+        for individual in population:
             
-            for individual in population:
-                fitness = worst_fit - self.get_fitness(individual)
-                s += fitness
-                
-                # MAIOR IGUAL
-                if s >= spin:
-                    parents.append(individual)
-                    break
-
-        return parents
+            # accumulates the sum and compares it to the gap between the worst fit and the current genes fitness
+            fitness = worst_fit - self.get_fitness(individual)
+            s += fitness
+            
+            # choosing wheel gets most probably the individuals with LESSER total cost
+            if s >= spin:
+                return individual
+            
+        # rarely, it will choose none, so just pick a random one/ Fallback
+        return choice(population)
     
-    def crossover(self, p1, p2):
+    def get_crossover(self, p1, p2):
         length = len(p1)
         cross_point = randint(1, length - 1)
         
         # order crossover
+        # we use order crossover so we dont repeat/lose nodes for the solution
+        # we get part of a chromossome and filter the second part with the ones missing according to the order not the exact sub string
         child1 = p1[:cross_point] + "".join(char for char in p2 if char not in p1[:cross_point])
         child2 = p2[:cross_point] + "".join(char for char in p1 if char not in p2[:cross_point])
         
         return child1, child2
 
-    def get_crossover(population):
-        crossed = []
-        
-        while (len(crossed) < len(population)):
-            pass
-            
-        
-        return crossed
-        
+    def get_select_and_crossover(self, population):
+        new_gen = []
+        n = len(population)
+        while (len(new_gen) < n):
+            s1 = self.get_selected_parent(population)
+            s2 = self.get_selected_parent(population)
+            if (s1 != s2):
+                c1, c2 = self.get_crossover(s1, s2)
+                new_gen.append(c1)
+                if (len(new_gen) != n):
+                    new_gen.append(c2)
     
+        return new_gen
+          
     def mutation(self, individual):
-        pass
+        if random() >= MUTATION:
+            return individual
+        
+        m1 = randint(0, len(individual) - 1)
+        m2 = randint(0, len(individual) - 1)
+        while m2 == m1:
+            m1 = randint(0, len(individual) - 1)
+        
+        trade = list(individual)
+        trade[m1], trade[m2] = trade[m2], trade[m1]
+        return "".join(trade)
 
     def put_new_generation(self):
-        new_gen = self.get_select_parents(self.generations[-1])
-        new_gen = self.get_crossover(new_gen)
-        
+        new_gen = self.get_select_and_crossover(self.generations[-1])  
+        for i in range(0, len(new_gen)):
+            new_gen[i] = self.mutation(new_gen[i])
+                
         self.generations.append(new_gen)
 
     def execute(self):
         self.generations.append(self.get_initial_population())
         for _ in range(0, GENERATIONS - 1):
             self.put_new_generation()
-        self.print_generations()
-        
-    
+
+        # print("Generations evolution")
+        # self.print_generations()
 
         
 def main():
