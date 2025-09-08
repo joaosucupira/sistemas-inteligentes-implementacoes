@@ -98,7 +98,7 @@ class TSP:
         return sum(self.get_fitness(ind) for ind in population)
     
     def get_selected_parent(self, population):
-        # optmizing selection by storing just once the list of fitnes
+
         fitness_list = [self.get_fitness(ind) for ind in population]
         worst_fit = max(fitness_list) + 1
         
