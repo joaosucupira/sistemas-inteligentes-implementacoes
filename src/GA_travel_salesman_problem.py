@@ -1,14 +1,16 @@
-import matplotlib as plt
+import matplotlib.pyplot as plt
+from sys import maxsize
 from random import randint, random, choice, shuffle, uniform
 from string import ascii_uppercase
 
-GRAPH = 26
+INF = maxsize
+GRAPH = 20
 WEIGHT_RANGE = (1,10)
-MUTATION = 0.05
+MUTATION = 0.02
 START = 'A'
-POPULATION = 10
+POPULATION = 100
 INDIVIDUAL = GRAPH - 1
-GENERATIONS = 1000
+GENERATIONS = 500
 PRINT_INTERVAL = 100
 
 class Graph:
@@ -56,6 +58,8 @@ class TSP:
         self.p_size = p_size
         self.start_node = start_n
         self.generations = []
+        self.history = []
+        self.greedy_cost = None
  
     
     def get_random_individual(self):
@@ -163,14 +167,75 @@ class TSP:
             new_gen[i] = self.mutation(new_gen[i])
                 
         self.generations.append(new_gen)
+    def plot_performance(self):
+    
+        greedy_performance = [self.greedy_cost] * (GENERATIONS + 1)
+        
+        plt.figure(figsize=(12, 8))
+        plt.plot(range(len(self.history)), self.history, marker='o', linestyle='-', label='Algoritmo Genético', color='blue')
+        plt.plot(range(len(greedy_performance)), greedy_performance, linestyle='--', color='red', label='Algoritmo Guloso')
+        plt.title('Comparação de Desempenho: AG vs. Guloso')
+        plt.xlabel('Geração')
+        plt.ylabel('Melhor Fitness (Distância Total)')
+        plt.grid(True)
+        plt.legend()
+        plt.show()
 
     def execute(self):
+        greedy_solver = TSPGreedy(self.graph)
+        greedy_path = greedy_solver.solve(self.start_node)
+        self.greedy_cost = greedy_solver.get_path_cost(greedy_path)
+        
         self.generations.append(self.get_initial_population())
+        self.history.append(min(self.get_fitness(ind) for ind in self.generations[-1]))
         for _ in range(0, GENERATIONS - 1):
             self.put_new_generation()
+            self.history.append(min(self.get_fitness(ind) for ind in self.generations[-1]))
+            
 
         # print("Generations evolution")
         # self.print_generations()
+        self.plot_performance()
+
+class TSPGreedy:
+    def __init__(self, graph):
+        self.graph = graph
+
+    def solve(self, start_node_label):
+        path = [start_node_label]
+        visited_nodes = {start_node_label}
+        current_node_label = start_node_label
+        
+        while len(visited_nodes) < self.graph.size:
+            current_node_index = self.graph.nodes.index(current_node_label)
+            min_weight = INF
+            next_node_label = None
+
+            for i, weight in enumerate(self.graph.matrix[current_node_index]):
+                neighbor_label = self.graph.nodes[i]
+                if neighbor_label not in visited_nodes and weight < min_weight:
+                    min_weight = weight
+                    next_node_label = neighbor_label
+
+            if next_node_label:
+                path.append(next_node_label)
+                visited_nodes.add(next_node_label)
+                current_node_label = next_node_label
+            else:
+                break
+        
+        path.append(start_node_label)
+        
+        return path
+
+    def get_path_cost(self, path):
+            cost = 0
+            for i in range(len(path) - 1):
+
+                n1_label = path[i]
+                n2_label = path[i+1]
+                cost += self.graph.get_weight(n1_label, n2_label)
+            return cost
 
         
 def main():
