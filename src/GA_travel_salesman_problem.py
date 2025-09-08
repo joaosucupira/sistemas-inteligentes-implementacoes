@@ -4,15 +4,15 @@ from random import randint, random, choice, shuffle, uniform
 from string import ascii_uppercase
 
 INF = maxsize
-GRAPH = 5
+GRAPH = 100
 WEIGHT_RANGE = (1,100)
-MUTATION = 0.05
+MUTATION = 0.4
 START = 0
-POPULATION = 4
+POPULATION = 25
 INDIVIDUAL = GRAPH - 1
-GENERATIONS = 10000
+GENERATIONS = 1000
 PRINT_INTERVAL = 100
-TESTS = 5
+TESTS = 1
 class Graph:
     def __init__(self, size=GRAPH, weight_range=WEIGHT_RANGE):
         self.matrix = [[0] * size for _ in range(size)]
@@ -69,6 +69,9 @@ class TSP:
             
     def get_initial_population(self):
         pop = []
+        greed = TSPGreedy(self.graph)
+        greedy_path = greed.solve(START)
+        pop.append(greedy_path)
         while (len(pop) < self.p_size):
             individual = self.get_random_individual()
             if (individual not in pop):
@@ -148,10 +151,22 @@ class TSP:
         return trade
 
     def put_new_generation(self):
-        new_gen = self.get_select_and_crossover(self.generations[-1])
+        
+        current_pop = self.generations[-1]
+        elite_individual = min(current_pop, key=self.get_fitness)
+        new_gen = self.get_select_and_crossover(current_pop)
+
         for i in range(len(new_gen)):
             new_gen[i] = self.mutation(new_gen[i])
+        
+        
+        worst_new_individual = max(new_gen, key=self.get_fitness)
+        worst_index = new_gen.index(worst_new_individual)
+        
+        new_gen[worst_index] = elite_individual
         self.generations.append(new_gen)
+
+
  
     def plot_performance(self):
         greedy_performance = [self.greedy_cost] * (GENERATIONS + 1)
