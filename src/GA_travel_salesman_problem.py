@@ -1,16 +1,17 @@
 import matplotlib.pyplot as plt
+import numpy as np
 from sys import maxsize
 from random import randint, random, choice, shuffle, uniform
 from string import ascii_uppercase
 
 INF = maxsize
-GRAPH = 100
+GRAPH = 20
 WEIGHT_RANGE = (1,100)
 MUTATION = 0.4
 START = 0
-POPULATION = 25
+POPULATION = 20
 INDIVIDUAL = GRAPH - 1
-GENERATIONS = 1000
+GENERATIONS = 10000
 PRINT_INTERVAL = 100
 TESTS = 1
 class Graph:
@@ -165,8 +166,10 @@ class TSP:
         
         new_gen[worst_index] = elite_individual
         self.generations.append(new_gen)
-
-
+        
+        n = len(self.generations)
+        if  n == 10 or n == 100 or n == 1000 or n == 10000:
+            self.generate_report() 
  
     def plot_performance(self):
         greedy_performance = [self.greedy_cost] * (GENERATIONS + 1)
@@ -176,12 +179,90 @@ class TSP:
         plt.title('Comparação de Desempenho: AG vs. Guloso')
         plt.xlabel('Geração')
         plt.ylabel('Melhor Fitness (Distância Total)')
+        
+        textstr = '\n'.join((
+            f'Grafo: {GRAPH} nós',
+            f'População: {POPULATION}',
+            f'Gerações: {GENERATIONS}',
+            f'Mutação: {MUTATION * 100:.0f}%'))
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+        plt.text(0.05, 0.95, textstr, transform=plt.gca().transAxes, fontsize=10,
+                 verticalalignment='top', bbox=props)
+                 
         plt.grid(True)
         plt.legend()
-        # plt.show()
         plt.waitforbuttonpress()
         plt.close()
 
+    def plot_fitness_distribution(self, generation_number):
+            if generation_number >= len(self.generations):
+                print("Número de geração inválido.")
+                return
+
+            population = self.generations[generation_number]
+            fitness_values = [self.get_fitness(ind) for ind in population]
+            
+            plt.figure(figsize=(10, 6))
+            plt.hist(fitness_values, bins=10, color='skyblue', edgecolor='black')
+            plt.title(f'Distribuição de Fitness na Geração {generation_number}')
+            plt.xlabel('Fitness (Distância Total)')
+            plt.ylabel('Frequência de Indivíduos')
+            plt.grid(axis='y', alpha=0.75)
+            plt.show()
+            
+    def compare_final_performance(self):
+            best_ag_cost = min(self.history)
+            
+            plt.figure(figsize=(8, 6))
+            plt.axhline(y=best_ag_cost, color='blue', linestyle='-', label=f'Melhor AG (Custo: {best_ag_cost})')
+            plt.axhline(y=self.greedy_cost, color='red', linestyle='--', label=f'Guloso (Custo: {self.greedy_cost})')
+            
+            plt.title('Comparação do Melhor Custo: AG vs. Guloso')
+            plt.xlabel('Algoritmos')
+            plt.ylabel('Custo do Caminho')
+            plt.xticks([])
+            plt.legend()
+            plt.grid(axis='y', alpha=0.75)
+            plt.show()
+            
+    def plot_ag_performance(self):
+            plt.figure(figsize=(12, 8))
+            plt.plot(range(len(self.history)), self.history, marker='o', linestyle='-', label='Melhor Fitness do AG', color='blue')
+            plt.title('Evolução do Melhor Fitness do Algoritmo Genético')
+            plt.xlabel('Geração')
+            plt.ylabel('Melhor Fitness (Distância Total)')
+            plt.grid(True)
+            plt.legend()
+            plt.show()
+
+    def generate_report(self):
+        initial_best_fitness = min(self.history)
+        final_best_fitness = min(self.history)
+        greedy_cost = self.greedy_cost
+
+        if greedy_cost != 0:
+            improvement = (greedy_cost - final_best_fitness) / greedy_cost * 100
+        else:
+            improvement = 0
+
+        print("\n--- Relatório de Desempenho ---")
+        print("{:<25} {:<10}".format("Métrica", "Valor"))
+        print("-" * 35)
+        print("{:<25} {:<10.2f}".format("Melhor Fitness Inicial (AG)", initial_best_fitness))
+        print("{:<25} {:<10.2f}".format("Custo Guloso", greedy_cost))
+        print("{:<25} {:<10.2f}".format("Melhor Fitness Final (AG)", final_best_fitness))
+        print("-" * 35)
+        print("{:<25} {:<10.2f}%".format("Melhora em relação ao Guloso", improvement))
+    
+    def run_analysis(self):
+        self.plot_ag_performance()
+        self.compare_final_performance()
+        for i in range(0, len(self.generations), (GENERATIONS // 10)):
+            self.plot_fitness_distribution(i)
+        self.plot_performance()
+        # self.generate_report()
+
+        
     def execute(self):
         greedy_solver = TSPGreedy(self.graph)
         greedy_path = greedy_solver.solve(self.start_node)
@@ -193,7 +274,8 @@ class TSP:
             self.put_new_generation()
             self.history.append(min(self.get_fitness(ind) for ind in self.generations[-1]))
         
-        self.plot_performance()
+        # self.plot_performance()
+        self.run_analysis()
         
 class TSPGreedy:
     def __init__(self, graph):
