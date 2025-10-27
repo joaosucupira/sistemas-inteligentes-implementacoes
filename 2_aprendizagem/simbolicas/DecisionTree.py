@@ -60,7 +60,7 @@ class ArvoreDecisao:
             limites = np.unique(dados_validos)
             
             for lim in limites:
-                ganho = self._razao_ganho(Alvos, Coluna_Dados, lim, indice_carac)
+                ganho = self._razao_ganho(Alvos, Coluna_Dados, lim)
 
                 if ganho > melhor_ganho:
                     melhor_ganho = ganho
@@ -69,7 +69,7 @@ class ArvoreDecisao:
 
         return indice_divisao, limite_divisao
 
-    def _razao_ganho(self, Alvos, Coluna_Dados, limite, indice_carac):
+    def _razao_ganho(self, Alvos, Coluna_Dados, limite):
         
         mascara_validos = ~np.isnan(Coluna_Dados)
         dados_validos = Alvos[mascara_validos]
