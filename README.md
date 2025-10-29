@@ -11,6 +11,9 @@ Este repositório contém as implementações desenvolvidas para a disciplina de
 Aqui você encontrará algoritmos e exemplos relacionados aos principais tópicos estudados na disciplina, como:
 - Algoritmos Genéticos
 - Tempera Simulada
+- Árvore de Decisão (C4.5)
+- Random Forest
+- Rede Neural Artifical
 - Outros métodos de otimização e inteligência artificial
 
 ## Estrutura
