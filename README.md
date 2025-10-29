@@ -18,7 +18,7 @@ Aqui você encontrará algoritmos e exemplos relacionados aos principais tópico
 - `1_tempera_geneticos`: Pasta com arquivos referentes ao 1º trabalho
   - `src/algoritmos_geneticos.py`: Implementação de algoritmos genéticos
   - `src/tempera_simulada.py`: Implementação de tempera simulada
-- `2_aprendizagem_maquina`: Pasta com arquivos referentes ao 2º trabalho
+- `2_aprendizagem`: Pasta com arquivos referentes ao 2º trabalho
   - `data`: Contém os datasets usados neste trabalho
   - `simbolicas`: Pasta com os arquivos referentes a modelagem com Árvores de decisão e Random Forest 
   - `redes_neurais`: Pasta que contém um notebook com a modelagem da RNA para o problema de classificação
